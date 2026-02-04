@@ -20,9 +20,17 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python agente_concursos.py
       - name: Salvar histórico de enviados
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global user.name "Bot de Concursos"
-          git config --global user.email "bot@github.com"
-          git add enviados.txt
-          git commit -m "Atualizando histórico de enviados" || exit 0
-          git push
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Verifica se o arquivo existe antes de tentar adicionar
+          if [ -f enviados.txt ]; then
+            git add enviados.txt
+            # Só faz o commit se houver mudanças reais (evita erro 128)
+            git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 Atualizando histórico de enviados" && git push)
+          else
+            echo "Nenhum arquivo de histórico gerado nesta rodada."
+          fi
