@@ -1,0 +1,21 @@
+name: Execucao Diaria
+on:
+  schedule:
+    - cron: '0 09 * * *' # Roda às 06:00 AM (Horário de Brasília)
+  workflow_dispatch: # Adiciona um botão para rodar manualmente
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 google-generativeai
+      - name: Run agent
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python agente_concursos.py
